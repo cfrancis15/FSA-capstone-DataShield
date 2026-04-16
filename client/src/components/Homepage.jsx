@@ -100,8 +100,27 @@ export default function Homepage() {
   }
 
   return (
-    <div>
-      <p>PII form</p>
+    <main>
+      <section className="home-shell">
+    <h1 className="home-title">Enter Your Information</h1>
+    <p className="home-subtitle">
+      We'll use this to find and remove your data from broker databases.
+    </p>
+    <form className="home-form" onSubmit={handleSubmit}>
+      <div className="form-section">
+        <label htmlFor="fullName">Full Name</label>
+        <div className="field-row">
+          <input id="fullName" name="first_name" value={form.first_name} onChange={handleChange} placeholder="John Doe" />
+        </div>
+      </div>
+      <div className="form-section">
+        <label>Email Addresses</label>
+        <div className="field-row">
+          <input name="email_address" value={form.email_address} onChange={handleChange} placeholder="your@email.com" />
+          <a className="add-link" href="#">+ Add Another Email</a>
+        </div>
+      </div>
+      
       <form onSubmit={handleSubmit}>
         <input name="title" value={form.title} onChange={handleChange} placeholder="title" />
         <input name="first_name" value={form.first_name} onChange={handleChange} placeholder="first_name" />
@@ -119,6 +138,15 @@ export default function Homepage() {
         <button type="submit">Submit</button>
       </form>
       {message ? <p>{message}</p> : null}
-    </div>
+
+
+      <div className="submit-row">
+        <button type="submit" className="btn btn-primary">Save &amp; Continue</button>
+      </div>
+    </form>
+    {message ? <p className="home-message">{message}</p> : null}
+  </section>
+
+    </main>
   )
 }
