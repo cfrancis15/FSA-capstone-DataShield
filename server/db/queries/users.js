@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 
 //creating user with hashed password
 export async function createUser({username,password}){
-    const hashedPassword = await bcrypt.hash(password,15)
+    const hashedPassword = await bcrypt.hash(password,10)
 
     const {rows} = await db.query(`
         INSERT INTO users (username, password)
