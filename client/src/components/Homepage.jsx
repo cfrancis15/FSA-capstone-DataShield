@@ -2,8 +2,53 @@ import { useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 
 export default function Homepage() {
+
+
+
+
+
+
+
   const { token } = useAuth()
   const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
+
+  useEffect(() => {
+    async function loadPii() {
+      if (!token) return
+      try {
+        const response = await fetch(API + '/pii/getPii', {
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
+        })
+        if (!response.ok) return
+        const data = await response.json()
+        // Fill the form with saved PII
+        setForm({
+          title: data.title || '',
+          first_name: data.first_name || '',
+          middle_name: data.middle_name || '',
+          last_name: data.last_name || '',
+          suffix: data.suffix || '',
+          phone_number: data.phone_number || '',
+          email_address: data.email_address || '',
+          street: data.street || '',
+          apt: data.apt || '',
+          city: data.city || '',
+          us_state: data.us_state || '',
+          zip_code: data.zip_code || '',
+          dob: data.dob ? String(data.dob).slice(0, 10) : '',
+        })
+      } catch (err) {
+        // Keep simple for now
+        console.log('Could not load PII')
+      }
+    }
+    loadPii()
+  }, [token, API])
+
+
 
   const [form, setForm] = useState({
     title: '',
