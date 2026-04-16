@@ -24,7 +24,8 @@ export default function Homepage() {
         })
         if (!response.ok) return
         const data = await response.json()
-        // Fill the form with saved PII
+        
+        
         setForm({
           title: data.title || '',
           first_name: data.first_name || '',
@@ -41,7 +42,7 @@ export default function Homepage() {
           dob: data.dob ? String(data.dob).slice(0, 10) : '',
         })
       } catch (err) {
-        // Keep simple for now
+        
         console.log('Could not load PII')
       }
     }
