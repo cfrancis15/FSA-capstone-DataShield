@@ -1,104 +1,162 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #0f172a;
+  background-color: #1f2937;
   color: #e5e7eb;
 }
 
-.homepage-wrapper {
-  min-height: 100vh;
+.navbar {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: #111827;
+  border-bottom: 1px solid #374151;
+}
+
+.nav-brand {
+  color: #4ade80;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-links a {
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.nav-links a:hover {
+  background-color: #374151;
+  color: #4ade80;
+}
+
+.page {
+  min-height: calc(100vh - 58px);
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 24px;
+  padding: 24px 16px;
 }
 
-.homepage-card {
+.auth-form {
   width: 100%;
-  max-width: 760px;
+  max-width: 360px;
+  background-color: #111827;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.page-title {
+  margin-bottom: 18px;
+  font-size: 30px;
+  color: #4ade80;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #d1d5db;
+  font-size: 15px;
+}
+
+.form-group input {
+  padding: 10px;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
   background-color: #1f2937;
-  border-radius: 12px;
-  padding: 28px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  color: #e5e7eb;
 }
 
-.homepage-title {
+.btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #4ade80;
+  color: #0f172a;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color: #22c55e;
+}
+
+.form-error {
   margin: 0;
-  font-size: 40px;
-  color: #f9fafb;
+  color: #fca5a5;
+  font-size: 14px;
 }
 
-.homepage-subtitle {
-  margin-top: 8px;
-  margin-bottom: 28px;
-  color: #9ca3af;
+.auth-footer {
+  margin-top: 14px;
+}
+
+.auth-footer a {
+  color: #86efac;
+}
+
+#root > p {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 18px;
+}
+
+#root > div {
+  max-width: 760px;
+  margin: 24px auto;
+  background-color: #111827;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+#root > div p {
+  margin: 0 0 10px;
+  color: #4ade80;
   font-size: 20px;
 }
 
-.form-section {
-  margin-bottom: 22px;
+#root > div form {
+  display: grid;
+  gap: 10px;
 }
 
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #e5e7eb;
-  font-size: 28px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
+#root > div form input {
+  padding: 10px;
   border: 1px solid #4b5563;
-  background-color: #374151;
-  color: #f3f4f6;
-  font-size: 24px;
+  border-radius: 6px;
+  background-color: #1f2937;
+  color: #e5e7eb;
 }
 
-.form-input::placeholder {
-  color: #9ca3af;
-}
-
-.add-link {
-  display: inline-block;
-  margin-top: 8px;
-  color: #4ade80;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 24px;
-}
-
-.add-link:hover {
-  text-decoration: underline;
-}
-
-.submit-button {
-  width: 100%;
-  margin-top: 8px;
-  padding: 14px;
+#root > div form button {
+  padding: 10px 14px;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   background-color: #4ade80;
-  color: #ffffff;
-  font-size: 24px;
+  color: #0f172a;
   font-weight: bold;
   cursor: pointer;
 }
 
-.submit-button:hover {
+#root > div form button:hover {
   background-color: #22c55e;
-}
-
-.status-message {
-  margin-top: 14px;
-  color: #d1d5db;
-  font-size: 22px;
-}
-
-.login-message {
-  text-align: center;
-  margin-top: 40px;
-  font-size: 24px;
 }
