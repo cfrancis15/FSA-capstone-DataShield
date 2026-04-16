@@ -1,203 +1,104 @@
-:root {
-  --bg: #0a1230;
-  --panel: #202a44;
-  --panel-2: #1a243d;
-  --input: #374764;
-  --input-border: #4c5b77;
-  --text: #e8edf7;
-  --muted: #9fb0cf;
-  --accent: #58cc63;
-  --accent-hover: #4fbb59;
-  --danger: #ff7f7f;
-  --radius: 10px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: Arial, sans-serif;
+  background-color: #0f172a;
+  color: #e5e7eb;
 }
 
-#root {
+.homepage-wrapper {
   min-height: 100vh;
-}
-
-.navbar {
-  width: min(980px, calc(100% - 2rem));
-  margin: 1.5rem auto 0;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
-  background: rgba(32, 42, 68, 0.65);
-  backdrop-filter: blur(6px);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  padding: 24px;
 }
 
-.nav-brand,
-.nav-links a {
-  color: var(--text);
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.page {
-  min-height: calc(100vh - 86px);
-  display: grid;
-  place-items: center;
-  padding: 1.5rem 1rem 2rem;
-}
-
-.auth-page {
-  align-content: center;
-}
-
-.auth-form {
-  width: min(100%, 420px);
-  background: var(--panel);
-  border-radius: 12px;
-  padding: 2rem;
-  display: grid;
-  gap: 1rem;
-  text-align: left;
-}
-
-.page-title {
-  margin: 0 0 1rem;
-  text-align: center;
-  font-size: 2rem;
-  color: var(--text);
-}
-
-.form-group {
-  display: grid;
-  gap: 0.4rem;
-  font-weight: 600;
-  color: #d6e0f2;
-}
-
-.form-group input {
+.homepage-card {
   width: 100%;
-  border: 1px solid var(--input-border);
-  background: var(--input);
-  color: var(--text);
-  border-radius: 8px;
-  padding: 0.8rem 0.9rem;
-  font-size: 1rem;
-}
-
-.form-group input::placeholder {
-  color: var(--muted);
-}
-
-.btn {
-  border: 0;
-  border-radius: 8px;
-  padding: 0.8rem 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #f6fff6;
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
-.form-error {
-  margin: 0;
-  color: var(--danger);
-  font-size: 0.92rem;
-}
-
-.auth-footer {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.auth-footer a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-/* Homepage wireframe card */
-.home-shell {
-  width: min(100%, 860px);
-  background: var(--panel);
+  max-width: 760px;
+  background-color: #1f2937;
   border-radius: 12px;
-  padding: 2rem;
-  text-align: left;
+  padding: 28px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-.home-title {
+.homepage-title {
   margin: 0;
-  font-size: 2.1rem;
+  font-size: 40px;
+  color: #f9fafb;
 }
 
-.home-subtitle {
-  margin: 0.5rem 0 1.5rem;
-  color: var(--muted);
-}
-
-.home-form {
-  display: grid;
-  gap: 1.15rem;
+.homepage-subtitle {
+  margin-top: 8px;
+  margin-bottom: 28px;
+  color: #9ca3af;
+  font-size: 20px;
 }
 
 .form-section {
-  display: grid;
-  gap: 0.45rem;
+  margin-bottom: 22px;
 }
 
-.form-section label {
-  font-weight: 700;
-  color: #dce6f8;
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #e5e7eb;
+  font-size: 28px;
 }
 
-.field-row {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.home-form input {
+.form-input {
   width: 100%;
-  border: 1px solid var(--input-border);
-  background: var(--input);
-  color: var(--text);
+  padding: 14px;
   border-radius: 10px;
-  padding: 0.85rem 1rem;
-  font-size: 1.05rem;
+  border: 1px solid #4b5563;
+  background-color: #374151;
+  color: #f3f4f6;
+  font-size: 24px;
 }
 
-.home-form input::placeholder {
-  color: var(--muted);
+.form-input::placeholder {
+  color: #9ca3af;
 }
 
 .add-link {
-  color: var(--accent);
+  display: inline-block;
+  margin-top: 8px;
+  color: #4ade80;
   text-decoration: none;
   font-weight: 600;
-  width: fit-content;
+  font-size: 24px;
 }
 
-.submit-row {
-  margin-top: 0.5rem;
+.add-link:hover {
+  text-decoration: underline;
 }
 
-.home-message {
-  margin-top: 0.75rem;
-  color: var(--muted);
+.submit-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background-color: #4ade80;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #22c55e;
+}
+
+.status-message {
+  margin-top: 14px;
+  color: #d1d5db;
+  font-size: 22px;
+}
+
+.login-message {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 24px;
 }
