@@ -1,0 +1,15 @@
+# WHY: node_modules can contain thousands of files and is fully reproducible by running
+# `npm install`. Committing it bloats the repo, slows down clones, and causes merge
+# conflicts between different machines. Anyone cloning the project just runs `npm install`
+# and gets the exact same packages from package.json.
+node_modules
+
+# WHY: .env files hold secrets like database passwords and JWT keys. Committing them
+# would expose those credentials to anyone who can see the repo — including the public
+# if the repo is ever made open source. Use example.env to document what variables are
+# needed without revealing the actual values.
+.env
+
+# WHY: Log files are generated at runtime and are specific to one machine's session.
+# They add noise to the repo history and don't belong in version control.
+*.log

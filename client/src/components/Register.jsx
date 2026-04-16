@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router";
-import { Link } from "react-router";
+// WHY (Code Style): useNavigate and Link both come from 'react-router', so combining
+// them into one import keeps the import list readable and avoids duplicate module lines.
+import { useNavigate, Link } from "react-router";
 
 /** A form that allows users to register for a new account */
 export default function Register() {
@@ -36,7 +37,10 @@ export default function Register() {
        
         <label className="form-group">
           Username
-          <input type="username" name="username" required />
+          {/* WHY (Functionality): 'username' is not a valid HTML input type. Using type="text"
+               ensures browsers apply correct autocomplete, accessibility labeling, and
+               keyboard behavior. An invalid type can silently break autofill on some browsers. */}
+          <input type="text" name="username" required />
         </label>
         <label className="form-group">
           Password

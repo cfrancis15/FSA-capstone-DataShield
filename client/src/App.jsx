@@ -1,33 +1,25 @@
-import { useState } from 'react'
-import Navbar from './components/Navbar'
-import Login from './components/Login'
-import Register from './components/Register'
-import {Routes, Route} from 'react-router'
-import Homepage from './components/Homepage'
-
+import { useState } from "react";
+import Navbar from "./components/Navbar";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import { Routes, Route } from "react-router";
+import Homepage from "./components/Homepage";
 
 function App() {
+  // WHY (Code Style): Removed unused API_BASE variable. API calls belong in AuthContext
+  // (where they already live), not in App.jsx. Dead variables make the code harder to
+  // read and can confuse future developers wondering where this value is used.
 
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-
-
-
-    
- 
-
-
-
-  return(
+  return (
     <>
-    <Navbar/>
+      <Navbar />
 
-    <Routes>
-      <Route path='/' element={<Homepage/>}></Route> 
-      <Route path='/login' element={<Login/>}></Route>
-      <Route path='/register' element={<Register/>}></Route>
-    </Routes>
+      <Routes>
+        <Route path="/" element={<Homepage />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/register" element={<Register />}></Route>
+      </Routes>
     </>
-  )
+  );
 }
-export default App
-
+export default App;

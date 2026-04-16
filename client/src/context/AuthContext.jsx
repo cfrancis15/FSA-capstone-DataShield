@@ -3,7 +3,23 @@ import { createContext, useContext, useState } from 'react'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(null)
+  // WHY (Functionality): Initializing token from localStorage means the user stays
+  // logged in after a page refresh. Without this, every reload wipes the token and
+  // the user is silently logged out — even though their session should still be valid.
+  // We read from localStorage on mount, and update it whenever the token changes.
+  const [token, setToken] = useState(() => localStorage.getItem('token'))
+
+  // WHY (Code Style): Wrapping setToken so every token update also syncs to localStorage.
+  // Keeping this in one place means login, register, and logout all stay consistent
+  // without repeating localStorage calls in each function.
+  const saveToken = (newToken) => {
+    if (newToken) {
+      localStorage.setItem('token', newToken)
+    } else {
+      localStorage.removeItem('token')
+    }
+    setToken(newToken)
+  }
 
   const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -17,7 +33,7 @@ export function AuthProvider({ children }) {
     if (!response.ok) {
       throw new Error(body || 'Registration failed')
     }
-    setToken(body)
+    saveToken(body)
   }
 
   const login = async (credentials) => {
@@ -30,10 +46,12 @@ export function AuthProvider({ children }) {
     if (!response.ok) {
       throw new Error(body || 'Login failed')
     }
-    setToken(body)
+    saveToken(body)
   }
 
-  const logout = () => setToken(null)
+  // WHY (Functionality): Passing null to saveToken clears localStorage as well,
+  // so the user is fully logged out on all future page loads too.
+  const logout = () => saveToken(null)
 
   const value = { token, register, login, logout }
 
