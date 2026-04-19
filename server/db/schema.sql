@@ -1,18 +1,14 @@
+DROP TABLE IF EXISTS acxiom_opt_out_submissions;
 DROP TABLE IF EXISTS deletion_requests;
 DROP TABLE IF EXISTS user_pii;
 DROP TABLE IF EXISTS brokers;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS greetings;
 
-
-
-
-
 CREATE TABLE greetings (
     id SERIAL PRIMARY KEY,
     message text
 );
-
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -49,7 +45,10 @@ CREATE TABLE deletion_requests(
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     broker_id INTEGER REFERENCES brokers(id),
     sent_at TIMESTAMP NOT NULL DEFAULT NOW()
-
 );
 
-
+CREATE TABLE acxiom_opt_out_submissions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
