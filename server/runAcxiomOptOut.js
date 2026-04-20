@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Stagehand } from "@browserbasehq/stagehand";
 import db from "./db/client.js";
 
-// One row per successful run (same user can have many rows over time).
 async function saveLog(userId) {
   await db.query(
     `INSERT INTO acxiom_opt_out_submissions (user_id) VALUES ($1)`,
@@ -13,8 +12,6 @@ async function saveLog(userId) {
   );
 }
 
-// Every cron run: all rows in user_pii.
-// Set CRON_USER_ID in .env to test with one user only.
 async function loadAllPii() {
   const testUserId = process.env.CRON_USER_ID
     ? Number(process.env.CRON_USER_ID)
@@ -38,9 +35,19 @@ async function loadAllPii() {
   return rows;
 }
 
+function formatDobUs(dob) {
+  if (!dob) return "";
+  const s = String(dob);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[2]}/${m[3]}/${m[1]}`;
+  return s;
+}
+
+const ACXIOM_ONETRUST_FORM_URL =
+  "https://privacyportal.onetrust.com/webform/342ca6ac-4177-4827-b61e-19070296cbd3/7229a09c-578f-4ac6-a987-e0428a7b877e";
+
 export async function runAcxiomOptOutForUser(pii, userId) {
-  const areaCode = "1";
-  const phone = pii.phone_number;
+  const dobUs = formatDobUs(pii.dob);
 
   const stagehand = new Stagehand({
     env: "BROWSERBASE",
@@ -52,24 +59,25 @@ export async function runAcxiomOptOutForUser(pii, userId) {
   const page = stagehand.context.pages()[0];
 
   try {
-    await page.goto("https://google.com");
-    await page.goto("https://www.acxiom.com/optout/");
+    await page.goto(ACXIOM_ONETRUST_FORM_URL, { waitUntil: "domcontentloaded" });
 
     const steps = [
-      'Select "Mailing Addresses", "Phone Numbers", and "Email Addresses".',
-      'For "Who is opting out?", choose individual consumer/self if present.',
-      `Set title to "${pii.title || "Mr."}" if title exists.`,
-      `Fill first "${pii.first_name}", middle "${pii.middle_name || ""}", last "${pii.last_name}", suffix "${pii.suffix || ""}".`,
-      `Fill phone: area code "${areaCode}" and phone number "${phone}".`,
-      `Fill email "${pii.email_address}".`,
-      `Fill address: street "${pii.street}", apt "${pii.apt || ""}", city "${pii.city}", state "${pii.us_state}", zip "${pii.zip_code}".`,
-      "Click Submit.",
+      'Set "Requestor\'s Country" to United States.',
+      'Under "I am submitting this request" choose "as Myself".',
+      'Under "Select the Right You Want to Exercise" pick "Delete Sensitive Personal Information" if it exists; otherwise choose the closest opt-out or limit-use option.',
+      `Fill Email: "${pii.email_address}".`,
+      `Fill First Name, Middle Name, Last Name, Suffix with: "${pii.first_name}", "${pii.middle_name || ""}", "${pii.last_name}", "${pii.suffix || ""}".`,
+      `Fill Date of Birth as "${dobUs}" (MM/DD/YYYY).`,
+      `Fill Address: "${pii.street}", Address Line 2: "${pii.apt || ""}", City: "${pii.city}", State: "${pii.us_state}", Zip: "${pii.zip_code}".`,
+      `If "Principal / Consumer" fields are visible and required, use the same person: first "${pii.first_name}", middle "${pii.middle_name || ""}", last "${pii.last_name}", DOB "${dobUs}", address "${pii.street}", city "${pii.city}", state "${pii.us_state}", zip "${pii.zip_code}".`,
+      'Complete the reCAPTCHA "I\'m not a robot" (click the checkbox; solve any image challenge if shown).',
+      "Click the final Submit or Send button for the form.",
     ];
 
     for (const step of steps) await stagehand.act(step);
 
     const { success } = await stagehand.extract(
-      "Is there a clear success or thank-you message after submit?",
+      "After submitting, is there a clear success, confirmation, or thank-you for the privacy request (not a validation or required-field error)?",
       z.object({ success: z.boolean() })
     );
 
@@ -101,7 +109,7 @@ export async function runAcxiomOptOutCron() {
     } catch (err) {
       summary.failed += 1;
       summary.errors.push({ userId, message: err?.message || String(err) });
-      console.error(`[Acxiom] user_id=${userId} failed:`, err);
+      console.error(`[Acxiom OneTrust] user_id=${userId} failed:`, err);
     }
   }
 
@@ -115,11 +123,11 @@ const ranDirectly =
 if (ranDirectly) {
   runAcxiomOptOutCron()
     .then((res) => {
-      console.log("Acxiom cron job complete:", res);
+      console.log("Acxiom OneTrust cron complete:", res);
       process.exit(res.failed ? 1 : 0);
     })
     .catch((err) => {
-      console.error("Acxiom cron job failed:", err);
+      console.error("Acxiom OneTrust cron failed:", err);
       process.exit(1);
     });
 }
