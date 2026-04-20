@@ -108,7 +108,6 @@ export async function runAcxiomOptOutForUser(pii, userId) {
       `Fill Date of Birth as ${dobUs} using MM/DD/YYYY.`,
       `Fill Address "${pii.street}", Address Line 2 "${pii.apt || ""}", City "${pii.city}", State "${pii.us_state}", Zip "${pii.zip_code}".`,
       `If Principal / Consumer fields are visible and required, repeat the same name, DOB ${dobUs}, and address "${pii.street}", "${pii.city}", "${pii.us_state}", "${pii.zip_code}".`,
-      "If there is a reCAPTCHA checkbox, click it. Wait if the page needs to verify.",
       "Click the main Submit or Send button at the bottom.",
     ];
 
