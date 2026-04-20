@@ -1,3 +1,11 @@
+/**
+ * Env (never commit secrets — use server/.env locally, Render dashboard in prod):
+ * - BROWSERBASE_API_KEY, BROWSERBASE_PROJECT_ID
+ * - DATABASE_URL
+ * - Optional: STAGEHAND_MODEL (e.g. openai/gpt-4o-mini) + OPENAI_API_KEY for that model
+ * - If STAGEHAND_MODEL is unset, Stagehand uses Browserbase gateway default (openai/gpt-4.1-mini).
+ * - CRON_USER_ID (optional), ACXIOM_JOB_GAP_MS (optional)
+ */
 import "dotenv/config";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -72,16 +80,16 @@ const ACXIOM_ONETRUST_FORM_URL =
 export async function runAcxiomOptOutForUser(pii, userId) {
   const dobUs = formatDobUs(pii.dob);
 
-  const modelName =
-    process.env.STAGEHAND_MODEL?.trim() || "openai/gpt-4o-mini";
-
-  const stagehand = new Stagehand({
+  const stagehandOpts = {
     env: "BROWSERBASE",
     apiKey: process.env.BROWSERBASE_API_KEY,
     projectId: process.env.BROWSERBASE_PROJECT_ID,
-    model: modelName,
     selfHeal: true,
-  });
+  };
+  const customModel = process.env.STAGEHAND_MODEL?.trim();
+  if (customModel) stagehandOpts.model = customModel;
+
+  const stagehand = new Stagehand(stagehandOpts);
 
   await stagehand.init();
   const page = stagehand.context.pages()[0];
