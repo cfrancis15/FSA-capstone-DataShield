@@ -43,16 +43,44 @@ function formatDobUs(dob) {
   return s;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function actWithRetry(stagehand, instruction, maxAttempts = 4) {
+  let lastErr;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await stagehand.act(instruction);
+    } catch (err) {
+      lastErr = err;
+      const msg = String(err?.message ?? err);
+      const emptyModel =
+        msg.includes("No object generated") ||
+        msg.includes("did not match schema") ||
+        msg.includes("AI_NoObjectGeneratedError");
+      if (!emptyModel || attempt === maxAttempts) throw err;
+      await sleep(600 * attempt);
+    }
+  }
+  throw lastErr;
+}
+
 const ACXIOM_ONETRUST_FORM_URL =
   "https://privacyportal.onetrust.com/webform/342ca6ac-4177-4827-b61e-19070296cbd3/7229a09c-578f-4ac6-a987-e0428a7b877e";
 
 export async function runAcxiomOptOutForUser(pii, userId) {
   const dobUs = formatDobUs(pii.dob);
 
+  const modelName =
+    process.env.STAGEHAND_MODEL?.trim() || "openai/gpt-4o-mini";
+
   const stagehand = new Stagehand({
     env: "BROWSERBASE",
     apiKey: process.env.BROWSERBASE_API_KEY,
     projectId: process.env.BROWSERBASE_PROJECT_ID,
+    model: modelName,
+    selfHeal: true,
   });
 
   await stagehand.init();
@@ -60,24 +88,28 @@ export async function runAcxiomOptOutForUser(pii, userId) {
 
   try {
     await page.goto(ACXIOM_ONETRUST_FORM_URL, { waitUntil: "domcontentloaded" });
+    await sleep(2500);
 
     const steps = [
-      'Set "Requestor\'s Country" to United States.',
-      'Under "I am submitting this request" choose "as Myself".',
-      'Under "Select the Right You Want to Exercise" pick "Delete Sensitive Personal Information" if it exists; otherwise choose the closest opt-out or limit-use option.',
-      `Fill Email: "${pii.email_address}".`,
-      `Fill First Name, Middle Name, Last Name, Suffix with: "${pii.first_name}", "${pii.middle_name || ""}", "${pii.last_name}", "${pii.suffix || ""}".`,
-      `Fill Date of Birth as "${dobUs}" (MM/DD/YYYY).`,
-      `Fill Address: "${pii.street}", Address Line 2: "${pii.apt || ""}", City: "${pii.city}", State: "${pii.us_state}", Zip: "${pii.zip_code}".`,
-      `If "Principal / Consumer" fields are visible and required, use the same person: first "${pii.first_name}", middle "${pii.middle_name || ""}", last "${pii.last_name}", DOB "${dobUs}", address "${pii.street}", city "${pii.city}", state "${pii.us_state}", zip "${pii.zip_code}".`,
-      'Complete the reCAPTCHA "I\'m not a robot" (click the checkbox; solve any image challenge if shown).',
-      "Click the final Submit or Send button for the form.",
+      'Click the "Requestor\'s Country" field (combobox or dropdown) to open the country list.',
+      'Choose the option whose label is exactly "United States" (the 50 states). Do NOT choose "United States Minor Outlying Islands".',
+      'Under "I am submitting this request" click "as Myself".',
+      'Under "Select the Right You Want to Exercise" pick "Limit Use/Opt Out of Sensitive Personal Information" or the closest opt-out / limit-use button.',
+      `Type into the Email field: ${pii.email_address}`,
+      `Fill First Name "${pii.first_name}", Middle Name "${pii.middle_name || ""}", Last Name "${pii.last_name}", Suffix "${pii.suffix || ""}".`,
+      `Fill Date of Birth as ${dobUs} using MM/DD/YYYY.`,
+      `Fill Address "${pii.street}", Address Line 2 "${pii.apt || ""}", City "${pii.city}", State "${pii.us_state}", Zip "${pii.zip_code}".`,
+      `If Principal / Consumer fields are visible and required, repeat the same name, DOB ${dobUs}, and address "${pii.street}", "${pii.city}", "${pii.us_state}", "${pii.zip_code}".`,
+      "If there is a reCAPTCHA checkbox, click it. Wait if the page needs to verify.",
+      "Click the main Submit or Send button at the bottom.",
     ];
 
-    for (const step of steps) await stagehand.act(step);
+    for (const step of steps) {
+      await actWithRetry(stagehand, step);
+    }
 
     const { success } = await stagehand.extract(
-      "After submitting, is there a clear success, confirmation, or thank-you for the privacy request (not a validation or required-field error)?",
+      "After submitting, is there a success, confirmation, or thank-you message (not a red validation error)?",
       z.object({ success: z.boolean() })
     );
 
