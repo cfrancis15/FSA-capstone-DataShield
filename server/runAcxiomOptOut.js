@@ -36,21 +36,35 @@ for (const p of users) {
 
     const d = dobUs(p.dob);
 
-    await stagehand.act(`type ${p.email_address} in the Email field`, { timeout: t });
-    await stagehand.act(`type ${p.first_name} in the First Name field`, { timeout: t });
-    await stagehand.act(`type ${p.last_name} in the Last Name field`, { timeout: t });
-    await stagehand.act(`type ${d} in the Date of Birth field`, { timeout: t });
-    await stagehand.act(`type ${p.street} in the Street Address field`, { timeout: t });
+    await stagehand.act('click "as Myself" under I am submitting this request', { timeout: t });
 
-    if (p.apt) {
-      await stagehand.act(`type ${p.apt} in the Apartment or Address Line 2 field`, { timeout: t });
-    }
+await stagehand.act('click "Delete" under Select the Right You Want to Exercise', { timeout: t });
 
-    await stagehand.act(`type ${p.city} in the City field`, { timeout: t });
-    await stagehand.act(`type ${p.us_state} in the State field`, { timeout: t });
-    await stagehand.act(`type ${p.zip_code} in the ZIP Code field`, { timeout: t });
-    await stagehand.act("scroll to the bottom of the form", { timeout: t });
-    await stagehand.act("click the main submit button", { timeout: t });
+await stagehand.act(`type ${p.email_address} in the Email field`, { timeout: t });
+
+await stagehand.act(`type ${p.first_name} in the First Name field`, { timeout: t });
+
+await stagehand.act(`type ${p.last_name} in the Last Name field`, { timeout: t });
+
+await stagehand.act(`clear the Date of Birth field`, { timeout: t });
+await stagehand.act(`type ${d} in the Date of Birth field in MM/DD/YYYY format`, { timeout: t });
+
+await stagehand.act(`type ${p.street} in the Street Address field`, { timeout: t });
+
+if (p.apt) {
+  await stagehand.act(`type ${p.apt} in the Apartment or Address Line 2 field`, { timeout: t });
+}
+
+await stagehand.act(`type ${p.city} in the City field`, { timeout: t });
+
+await stagehand.act(`type ${p.us_state} in the State field`, { timeout: t });
+
+await stagehand.act(`type ${p.zip_code} in the ZIP Code field`, { timeout: t });
+
+await stagehand.act("scroll to the bottom of the form", { timeout: t });
+
+await stagehand.act("click the main submit button", { timeout: t });
+
 
     await db.query(
       `INSERT INTO acxiom_opt_out_submissions (user_id) VALUES ($1)`,
