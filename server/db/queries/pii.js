@@ -39,3 +39,14 @@ export async function getPiiById(id){
     )
     return rows[0]
 }
+
+
+export async function getAllPii() {
+  const { rows } = await db.query(
+      `SELECT user_id, title, first_name, middle_name, last_name, suffix,
+              phone_number, email_address, street, apt, city, us_state, zip_code, dob
+       FROM user_pii
+       ORDER BY user_id`
+  )
+  return rows
+}
