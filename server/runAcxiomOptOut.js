@@ -40,7 +40,8 @@ for (const p of users) {
     await stagehand.act(
       `fill street ${p.street}, apt ${p.apt || ""}, city ${p.city}, state ${p.us_state}, zip ${p.zip_code}`
     );
-    await stagehand.act("click the main submit button");
+
+    await stagehand.act("complete the robot check and then click the main submit button");
 
     await db.query(
       `INSERT INTO acxiom_opt_out_submissions (user_id) VALUES ($1)`,
