@@ -26,7 +26,9 @@ for (const p of users) {
   try {
     await stagehand.init();
     const page = stagehand.context.pages()[0];
-    await page.goto(FORM_URL, { waitUntil: "domcontentloaded" });
+    await page.goto(FORM_URL, { waitUntil: "domcontentloaded" ,
+        timeout:120_000}
+    );
 
     const d = dobUs(p.dob);
 
