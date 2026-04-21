@@ -57,11 +57,13 @@ if (p.apt) {
 
 await stagehand.act(`type ${p.city} in the City field`, { timeout: t });
 
-await stagehand.act(`type ${p.us_state} in the State field`, { timeout: t });
+await stagehand.act("click the State dropdown", { timeout: t });
+await stagehand.act(`select ${p.us_state} from the State dropdown list`, { timeout: t });
 
 await stagehand.act(`type ${p.zip_code} in the ZIP Code field`, { timeout: t });
 
 await stagehand.act("scroll to the bottom of the form", { timeout: t });
+await stagehand.act('click the "I am not a robot" checkbox', { timeout: t });
 
 await stagehand.act("click the main submit button", { timeout: t });
 
