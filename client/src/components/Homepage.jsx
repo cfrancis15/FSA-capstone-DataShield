@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
+import SuccessfulAcxiomRequests from './SuccessfulAcxiomRequests.jsx'
 
 export default function Homepage() {
 
@@ -120,6 +121,8 @@ export default function Homepage() {
         <button type="submit">Submit</button>
       </form>
       {message ? <p>{message}</p> : null}
+
+      <SuccessfulAcxiomRequests/>
     </div>
   )
 }

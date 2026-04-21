@@ -76,6 +76,19 @@ router.post('/createPii', getUserFromToken, requireUser, async (req, res) => {
     }
   })
 
+  router.get('/acxiomSubmissions', getUserFromToken, requireUser, async (req, res) => {
+    try {
+      const { rows } = await db.query(
+        `SELECT id, submitted_at FROM acxiom_opt_out_submissions WHERE user_id = $1 ORDER BY submitted_at DESC`,
+        [req.user.id]
+      )
+      res.json(rows)
+    } catch (err) {
+      console.error(err)
+      res.status(500).send('Could not load submissions')
+    }
+  })
+
 
 
 
