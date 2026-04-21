@@ -122,6 +122,8 @@ export default function Homepage() {
       </form>
       {message ? <p>{message}</p> : null}
 
+      <br/>
+
       <SuccessfulAcxiomRequests/>
     </div>
   )
