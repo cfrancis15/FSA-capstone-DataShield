@@ -16,6 +16,14 @@ const t = 120_000;
 
 await db.connect();
 
+await db.query(`
+    CREATE TABLE IF NOT EXISTS acxiom_opt_out_submissions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
 const users = await getAllPii();
 
 for (const p of users) {
