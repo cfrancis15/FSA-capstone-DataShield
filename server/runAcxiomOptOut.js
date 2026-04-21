@@ -32,7 +32,7 @@ for (const p of users) {
 
     // Edit these strings to match the real form labels.
     await stagehand.act('click "as Myself" under I am submitting this request');
-    await stagehand.act("click the opt-out or limit-use option you need");
+    await stagehand.act('click the "Delete" option under "Select the Right You Want to Exercise"');
     await stagehand.act(`type ${p.email_address} in the email field`);
     await stagehand.act(
       `fill first name ${p.first_name}, last name ${p.last_name}, date of birth ${d}`
