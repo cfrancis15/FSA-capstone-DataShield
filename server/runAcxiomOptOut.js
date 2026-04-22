@@ -12,6 +12,64 @@ function dobUs(dob) {
   return m ? `${m[2]}/${m[3]}/${m[1]}` : s;
 }
 
+async function sendDeleteEmail(p) {
+  const apiKey = process.env.MAILGUN_API_KEY;
+  const domain = process.env.MAILGUN_DOMAIN;
+  const from = process.env.MAILGUN_FROM;
+
+  if (!apiKey || !domain || !from) {
+    console.error("Missing Mailgun env vars");
+    return;
+  }
+
+  if (!p.email_address) {
+    console.error("Missing email_address for user", p.user_id);
+    return;
+  }
+
+  const subject = "Data Deletion Request";
+  const text =
+    "Hello,\n\n" +
+    "Please delete all data associated with this person:\n\n" +
+    "Name: " + p.first_name + " " + p.last_name + "\n" +
+    "Email: " + p.email_address + "\n" +
+    "Phone: " + p.phone_number + "\n" +
+    "DOB: " + p.dob + "\n" +
+    "Address: " +
+    p.street +
+    (p.apt ? " " + p.apt : "") +
+    ", " +
+    p.city +
+    ", " +
+    p.us_state +
+    " " +
+    p.zip_code +
+    "\n\n" +
+    "Thank you.";
+
+  const form = new URLSearchParams();
+  form.append("from", from);
+  form.append("to", p.email_address);
+  form.append("subject", subject);
+  form.append("text", text);
+
+  const auth = "Basic " + Buffer.from("api:" + apiKey).toString("base64");
+
+  const response = await fetch("https://api.mailgun.net/v3/" + domain + "/messages", {
+    method: "POST",
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: form.toString(),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error("Mailgun send failed: " + response.status + " " + body);
+  }
+}
+
 const t = 120_000;
 
 await db.connect();
@@ -46,40 +104,46 @@ for (const p of users) {
 
     await stagehand.act('click "as Myself" under I am submitting this request', { timeout: t });
 
-await stagehand.act('click "Delete" under Select the Right You Want to Exercise', { timeout: t });
+    await stagehand.act('click "Delete" under Select the Right You Want to Exercise', { timeout: t });
 
-await stagehand.act(`type ${p.email_address} in the Email field`, { timeout: t });
+    await stagehand.act(`type ${p.email_address} in the Email field`, { timeout: t });
 
-await stagehand.act(`type ${p.first_name} in the First Name field`, { timeout: t });
+    await stagehand.act(`type ${p.first_name} in the First Name field`, { timeout: t });
 
-await stagehand.act(`type ${p.last_name} in the Last Name field`, { timeout: t });
+    await stagehand.act(`type ${p.last_name} in the Last Name field`, { timeout: t });
 
-await stagehand.act(`clear the Date of Birth field`, { timeout: t });
-await stagehand.act(`type ${d} in the Date of Birth field in MM/DD/YYYY format`, { timeout: t });
+    await stagehand.act(`clear the Date of Birth field`, { timeout: t });
+    await stagehand.act(`type ${d} in the Date of Birth field in MM/DD/YYYY format`, { timeout: t });
 
-await stagehand.act(`type ${p.street} in the Street Address field`, { timeout: t });
+    await stagehand.act(`type ${p.street} in the Street Address field`, { timeout: t });
 
-if (p.apt) {
-  await stagehand.act(`type ${p.apt} in the Apartment or Address Line 2 field`, { timeout: t });
-}
+    if (p.apt) {
+      await stagehand.act(`type ${p.apt} in the Apartment or Address Line 2 field`, { timeout: t });
+    }
 
-await stagehand.act(`type ${p.city} in the City field`, { timeout: t });
+    await stagehand.act(`type ${p.city} in the City field`, { timeout: t });
 
-await stagehand.act("click the State dropdown", { timeout: t });
-await stagehand.act(`select ${p.us_state} from the State dropdown list`, { timeout: t });
+    await stagehand.act("click the State dropdown", { timeout: t });
+    await stagehand.act(`select ${p.us_state} from the State dropdown list`, { timeout: t });
 
-await stagehand.act(`type ${p.zip_code} in the ZIP Code field`, { timeout: t });
+    await stagehand.act(`type ${p.zip_code} in the ZIP Code field`, { timeout: t });
 
-await stagehand.act("scroll to the bottom of the form", { timeout: t });
-await stagehand.act('click the "I am not a robot" checkbox', { timeout: t });
+    await stagehand.act("scroll to the bottom of the form", { timeout: t });
+    await stagehand.act('click the "I am not a robot" checkbox', { timeout: t });
 
-await stagehand.act("click the main submit button", { timeout: t });
-
+    await stagehand.act("click the main submit button", { timeout: t });
 
     await db.query(
       `INSERT INTO acxiom_opt_out_submissions (user_id) VALUES ($1)`,
       [p.user_id]
     );
+
+    try {
+      await sendDeleteEmail(p);
+      console.log("email sent for user", p.user_id);
+    } catch (emailErr) {
+      console.error("email failed for user", p.user_id, emailErr);
+    }
 
     console.log("submitted for user", p.user_id);
   } catch (err) {
