@@ -89,7 +89,22 @@ router.post('/createPii', getUserFromToken, requireUser, async (req, res) => {
     }
   })
 
-
+  router.get('/deletionRequests', getUserFromToken, requireUser, async (req, res) => {
+    try {
+      const { rows } = await db.query(
+        `SELECT dr.id, dr.sent_at, b.firm_name, b.email
+         FROM deletion_requests dr
+         JOIN brokers b ON b.id = dr.broker_id
+         WHERE dr.user_id = $1
+         ORDER BY dr.sent_at DESC`,
+        [req.user.id]
+      )
+      res.json(rows)
+    } catch (err) {
+      console.error(err)
+      res.status(500).send('Could not load deletion requests')
+    }
+  })
 
 
 

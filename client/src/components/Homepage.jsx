@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import SuccessfulAcxiomRequests from './SuccessfulAcxiomRequests.jsx'
+import SuccessfulDeletionRequests from './SuccessfulDeletionRequests.jsx'
 
 export default function Homepage() {
 
@@ -125,6 +126,10 @@ export default function Homepage() {
       <br/>
 
       <SuccessfulAcxiomRequests/>
+
+      <br/>
+
+      <SuccessfulDeletionRequests/>
     </div>
   )
 }
