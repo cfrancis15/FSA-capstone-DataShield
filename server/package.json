@@ -8,8 +8,8 @@
     "start": "node index.js",
     "test": "nodemon index.js",
     "dev": "nodemon index.js",
-    "db:schema": "psql -d greetings_11j0 -f db/schema.sql",
-    "db:seed": "node --env-file=example.env db/seed.js"
+    "db:seed":"node db/seed.js",
+    "db:schema": "psql -d greetings_11j0 -f db/schema.sql"
   },
   "author": "",
   "license": "ISC",
