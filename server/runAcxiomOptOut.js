@@ -17,12 +17,22 @@ async function sendDeleteEmail(p, broker) {
   const domain = process.env.MAILGUN_DOMAIN;
   const from = process.env.MAILGUN_FROM;
 
+  console.log("[mailgun] env check", {
+    hasApiKey: Boolean(apiKey),
+    hasDomain: Boolean(domain),
+    hasFrom: Boolean(from),
+  });
+
   if (!apiKey || !domain || !from) {
     throw new Error("Missing Mailgun env vars");
   }
 
-  if (!broker.email) {
-    throw new Error("Missing broker email for broker " + broker.id);
+  if (!broker || !broker.email) {
+    throw new Error("Missing broker email");
+  }
+
+  if (!p || !p.email_address) {
+    throw new Error("Missing user email_address");
   }
 
   const subject = "Data Deletion Request";
@@ -63,9 +73,18 @@ async function sendDeleteEmail(p, broker) {
   form.append("subject", subject);
   form.append("text", text);
 
+  const url = "https://api.mailgun.net/v3/" + domain + "/messages";
   const auth = "Basic " + Buffer.from("api:" + apiKey).toString("base64");
 
-  const response = await fetch("https://api.mailgun.net/v3/" + domain + "/messages", {
+  console.log("[mailgun] sending", {
+    user_id: p.user_id,
+    broker_id: broker.id,
+    broker_email: broker.email,
+    url,
+    from,
+  });
+
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: auth,
@@ -74,15 +93,25 @@ async function sendDeleteEmail(p, broker) {
     body: form.toString(),
   });
 
+  const bodyText = await response.text();
+
+  console.log("[mailgun] response", {
+    ok: response.ok,
+    status: response.status,
+    body: bodyText,
+    user_id: p.user_id,
+    broker_id: broker.id,
+  });
+
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error("Mailgun send failed: " + response.status + " " + body);
+    throw new Error("Mailgun send failed: " + response.status + " " + bodyText);
   }
 }
 
 const t = 120_000;
 
 await db.connect();
+console.log("[job] connected to db");
 
 await db.query(`
   CREATE TABLE IF NOT EXISTS acxiom_opt_out_submissions (
@@ -101,18 +130,25 @@ await db.query(`
   );
 `);
 
+console.log("[job] ensured tables exist");
+
 const users = await getAllPii();
+console.log("[job] users count:", users.length);
 
 const brokerResult = await db.query(
   `SELECT id, firm_name, email FROM brokers ORDER BY id`
 );
 const brokers = brokerResult.rows;
+console.log("[job] brokers count:", brokers.length);
 
 for (const p of users) {
+  console.log("[job] start user", p.user_id);
   let stagehand = null;
 
-  // Acxiom flow (can fail without blocking email flow)
+  // Acxiom flow (can fail; email still continues)
   try {
+    console.log("[acxiom] init stagehand for user", p.user_id);
+
     stagehand = new Stagehand({
       env: "BROWSERBASE",
       apiKey: process.env.BROWSERBASE_API_KEY,
@@ -120,6 +156,8 @@ for (const p of users) {
     });
 
     await stagehand.init();
+    console.log("[acxiom] stagehand ready for user", p.user_id);
+
     const page = stagehand.context.pages()[0];
 
     await page.goto(FORM_URL, {
@@ -155,18 +193,28 @@ for (const p of users) {
       [p.user_id]
     );
 
-    console.log("acxiom submitted for user", p.user_id);
+    console.log("[acxiom] submitted and logged for user", p.user_id);
   } catch (err) {
-    console.error("acxiom failed for user", p.user_id, err);
+    console.error("[acxiom] failed for user", p.user_id, err);
   } finally {
     if (stagehand) {
       await stagehand.close?.();
+      console.log("[acxiom] stagehand closed for user", p.user_id);
     }
   }
 
-  // Email flow (always runs even if Acxiom fails)
+  // Email flow (always runs)
+  console.log("[email] starting broker loop for user", p.user_id);
+
   for (const broker of brokers) {
     try {
+      console.log("[email] attempt", {
+        user_id: p.user_id,
+        broker_id: broker.id,
+        broker_name: broker.firm_name,
+        broker_email: broker.email,
+      });
+
       await sendDeleteEmail(p, broker);
 
       await db.query(
@@ -174,18 +222,23 @@ for (const p of users) {
         [p.user_id, broker.id]
       );
 
-      console.log("email sent for user", p.user_id, "to broker", broker.firm_name);
+      console.log("[email] sent and logged", {
+        user_id: p.user_id,
+        broker_id: broker.id,
+      });
     } catch (emailErr) {
-      console.error(
-        "email failed for user",
-        p.user_id,
-        "to broker",
-        broker.firm_name,
-        emailErr
-      );
+      console.error("[email] failed", {
+        user_id: p.user_id,
+        broker_id: broker.id,
+        broker_name: broker.firm_name,
+        broker_email: broker.email,
+        error: String(emailErr),
+      });
     }
   }
+
+  console.log("[job] finished user", p.user_id);
 }
 
 await db.end();
-console.log("done");
+console.log("[job] done");
