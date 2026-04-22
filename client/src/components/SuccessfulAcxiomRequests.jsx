@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 
+// Read-only history list for Acxiom submissions created by the cron flow.
 export default function SuccessfulAcxiomRequests() {
   const { token } = useAuth()
   const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -11,6 +12,7 @@ export default function SuccessfulAcxiomRequests() {
     if (!token) return
     let cancelled = false
     ;(async () => {
+      // Load per-user submission timestamps from backend.
       setErr('')
       try {
         const res = await fetch(API + '/pii/acxiomSubmissions', {

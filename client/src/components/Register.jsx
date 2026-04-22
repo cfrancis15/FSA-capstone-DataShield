@@ -10,6 +10,7 @@ export default function Register() {
 
   const [error, setError] = useState(null);
 
+  // Collect username/password and call AuthContext register helper.
   const tryRegister = async (formData) => {
     setError(null);
 

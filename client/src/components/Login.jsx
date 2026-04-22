@@ -3,12 +3,14 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
 
+// Login screen: exchanges credentials for token via AuthContext.
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const [error, setError] = useState(null);
 
+  // Read form values and attempt login.
   const tryLogin = async (formData) => {
     setError(null);
 

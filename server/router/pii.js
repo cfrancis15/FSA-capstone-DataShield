@@ -4,10 +4,11 @@ import getUserFromToken from '../middleware/getUserFromToken.js'
 import requireUser from '../middleware/requireUser.js'
 import db from '../db/client.js'
 
-//Make a route to add and pull from PII
+// PII router: save user profile data and expose request history for frontend.
 
 const router = express.Router()
 
+// Upsert-style endpoint for the logged-in user's PII record.
 router.post('/createPii', getUserFromToken, requireUser, async (req, res) => {
     const userId = req.user.id
     const {
@@ -62,6 +63,7 @@ router.post('/createPii', getUserFromToken, requireUser, async (req, res) => {
     }
   })
 
+  // Fetch current user's saved PII to prefill the homepage form.
   router.get('/getPii', getUserFromToken, requireUser, async (req, res) => {
     const userId = req.user.id
     try {
@@ -76,6 +78,7 @@ router.post('/createPii', getUserFromToken, requireUser, async (req, res) => {
     }
   })
 
+  // Timeline of successful Acxiom opt-out submissions.
   router.get('/acxiomSubmissions', getUserFromToken, requireUser, async (req, res) => {
     try {
       const { rows } = await db.query(
@@ -89,6 +92,7 @@ router.post('/createPii', getUserFromToken, requireUser, async (req, res) => {
     }
   })
 
+  // Timeline of successful broker emails with broker name/email attached.
   router.get('/deletionRequests', getUserFromToken, requireUser, async (req, res) => {
     try {
       const { rows } = await db.query(

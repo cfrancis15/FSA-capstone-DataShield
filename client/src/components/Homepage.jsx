@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import SuccessfulAcxiomRequests from './SuccessfulAcxiomRequests.jsx'
 import SuccessfulDeletionRequests from './SuccessfulDeletionRequests.jsx'
 
+// Main dashboard: users enter PII once, then see request history.
 export default function Homepage() {
 
 
@@ -16,6 +17,7 @@ export default function Homepage() {
 
 
   useEffect(() => {
+    // On page load (or login), pull saved PII so users can review/edit it.
     async function loadPii() {
       if (!token) return
       try {
@@ -71,10 +73,12 @@ export default function Homepage() {
 
   const [message, setMessage] = useState('')
 
+  // Generic handler for all form fields.
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  // Save or update the logged-in user's PII on the backend.
   async function handleSubmit(e) {
     e.preventDefault()
     setMessage('')
@@ -99,12 +103,13 @@ export default function Homepage() {
   }
 
   if (!token) {
-    return <p>Login to protect yourself from CREEPY data collectors!.</p>
+    return <p>Login to protect yourself from CREEPY data collectors!</p>
   }
 
   return (
     <div>
       <p>Personal Information Form</p>
+      {/* PII drives both Acxiom form automation and broker email content. */}
       <form onSubmit={handleSubmit}>
         <input name="title" value={form.title} onChange={handleChange} placeholder="title" />
         <input name="first_name" value={form.first_name} onChange={handleChange} placeholder="first_name" />
@@ -125,10 +130,12 @@ export default function Homepage() {
 
       <br/>
 
+      {/* Shows successful Acxiom webform submissions for this user. */}
       <SuccessfulAcxiomRequests/>
 
       <br/>
 
+      {/* Shows successful broker email requests for this user. */}
       <SuccessfulDeletionRequests/>
     </div>
   )

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import {useAuth} from '../context/AuthContext'
 
 
+// Basic top-level navigation for main routes.
 export default function Navbar(){
 
     const {token} = useAuth()

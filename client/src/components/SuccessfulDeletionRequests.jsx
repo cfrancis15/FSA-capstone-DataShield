@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 
+// Read-only history list for successful broker emails logged in deletion_requests.
 export default function SuccessfulDeletionRequests() {
   const { token } = useAuth()
   const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -12,6 +13,7 @@ export default function SuccessfulDeletionRequests() {
     let cancelled = false
 
     ;(async () => {
+      // Pull broker + timestamp rows for the current user.
       setErr('')
       try {
         const res = await fetch(API + '/pii/deletionRequests', {

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 
+// Central auth state so any component can access token/login/register/logout.
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -7,6 +8,7 @@ export function AuthProvider({ children }) {
 
   const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
+  // Creates an account and stores returned token for authenticated requests.
   const register = async (credentials) => {
     const response = await fetch(API + '/users/register', {
       method: 'POST',
@@ -20,6 +22,7 @@ export function AuthProvider({ children }) {
     setToken(body)
   }
 
+  // Logs in existing user and stores returned token.
   const login = async (credentials) => {
     const response = await fetch(API + '/users/login', {
       method: 'POST',
@@ -33,6 +36,7 @@ export function AuthProvider({ children }) {
     setToken(body)
   }
 
+  // Clears token and returns app to logged-out state.
   const logout = () => setToken(null)
 
   const value = { token, register, login, logout }

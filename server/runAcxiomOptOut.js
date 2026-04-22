@@ -3,9 +3,11 @@ import { Stagehand } from "@browserbasehq/stagehand";
 import db from "./db/client.js";
 import { getAllPii } from "./db/queries/pii.js";
 
+// Third-party webform used for Acxiom delete requests.
 const FORM_URL =
   "https://privacyportal.onetrust.com/webform/342ca6ac-4177-4827-b61e-19070296cbd3/7229a09c-578f-4ac6-a987-e0428a7b877e";
 
+// Convert DB date format to the MM/DD/YYYY format expected by the form.
 function dobUs(dob) {
   const s = String(dob);
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -36,6 +38,7 @@ async function sendDeleteEmail(p, broker) {
   }
 
   const subject = "Data Deletion Request";
+  // Simple plain-text email that includes user PII for broker lookup/deletion.
   const text =
     "Hello " +
     broker.firm_name +
@@ -113,6 +116,7 @@ const t = 120_000;
 await db.connect();
 console.log("[job] connected to db");
 
+// Ensure tracking table exists for Acxiom submissions.
 await db.query(`
   CREATE TABLE IF NOT EXISTS acxiom_opt_out_submissions (
     id SERIAL PRIMARY KEY,
@@ -132,6 +136,7 @@ await db.query(`
 
 console.log("[job] ensured tables exist");
 
+// Load all user PII records that should be processed this run.
 const users = await getAllPii();
 console.log("[job] users count:", users.length);
 
@@ -145,7 +150,8 @@ for (const p of users) {
   console.log("[job] start user", p.user_id);
   let stagehand = null;
 
-  // Acxiom flow (can fail; email still continues)
+  // Acxiom flow: attempt webform submission for this user.
+  // If Browserbase fails, the email flow below still runs.
   try {
     console.log("[acxiom] init stagehand for user", p.user_id);
 
@@ -203,7 +209,7 @@ for (const p of users) {
     }
   }
 
-  // Email flow (always runs)
+  // Email flow: send deletion emails to all brokers for this user.
   console.log("[email] starting broker loop for user", p.user_id);
 
   for (const broker of brokers) {
