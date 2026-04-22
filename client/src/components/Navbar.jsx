@@ -10,7 +10,7 @@ export default function Navbar(){
 
 
     <nav className="navbar">
-        <Link to='/' className="nav-brand">Book Buddy</Link>
+        <Link to='/' className="nav-brand">DataShield</Link>
         <div className="nav-links">
             <Link to='/'>Home</Link>
             <Link to='/login'>Login</Link>

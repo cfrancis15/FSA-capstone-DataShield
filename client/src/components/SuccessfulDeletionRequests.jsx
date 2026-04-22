@@ -39,7 +39,7 @@ export default function SuccessfulDeletionRequests() {
 
   return (
     <div>
-      <p>Successful broker email requests: {rows.length}</p>
+      <p>Successful emailed data deletion requests: {rows.length}</p>
       {err ? <p>{err}</p> : null}
       <ul>
         {rows.map((r) => (

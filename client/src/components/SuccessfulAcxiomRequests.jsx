@@ -35,7 +35,7 @@ export default function SuccessfulAcxiomRequests() {
 
   return (
     <div>
-      <p>Successful Acxiom requests: {rows.length}</p>
+      <p>Successful Acxiom deletion requests: {rows.length}</p>
       {err ? <p>{err}</p> : null}
       <ul>
         {rows.map((r) => (

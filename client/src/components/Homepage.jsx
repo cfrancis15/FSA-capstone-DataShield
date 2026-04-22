@@ -99,12 +99,12 @@ export default function Homepage() {
   }
 
   if (!token) {
-    return <p>Login to access main feature.</p>
+    return <p>Login to protect yourself from CREEPY data collectors!.</p>
   }
 
   return (
     <div>
-      <p>PII form</p>
+      <p>Personal Information Form</p>
       <form onSubmit={handleSubmit}>
         <input name="title" value={form.title} onChange={handleChange} placeholder="title" />
         <input name="first_name" value={form.first_name} onChange={handleChange} placeholder="first_name" />
