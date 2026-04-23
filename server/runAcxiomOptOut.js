@@ -9,8 +9,12 @@ const FORM_URL =
 
 // Convert DB date format to the MM/DD/YYYY format expected by the form.
 function dobUs(dob) {
+    // Normalize whatever we got (Date object, number, etc.) to a plain string for regex.
   const s = String(dob);
+  // Match YYYY-MM-DD at the start of the string; capture groups are [1]=year, [2]=month, [3]=day.
+    // Returns an array on success, or null if the string doesn't begin that way.
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  // If we parsed ISO date: form MM/DD/YYYY for the web form. Otherwise leave the string unchanged.
   return m ? `${m[2]}/${m[3]}/${m[1]}` : s;
 }
 
